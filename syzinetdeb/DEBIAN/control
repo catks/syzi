@@ -1,0 +1,9 @@
+Package: syzinet
+Version: 0.01
+Section: net
+Priority: optional
+Architecture: all
+Essential: no
+Installed-Size: 3680
+Maintainer: Carlos A. [carlos.atks@gmail.com]
+Description: syzinet é um pacote com várias ferramentas de rede em modo interativo.
