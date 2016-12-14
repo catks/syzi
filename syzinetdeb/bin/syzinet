@@ -4,107 +4,107 @@
 
 ##Função para continuar a execução informando ao usuário para ele apertar enter
 function cont(){
-echo "...[Enter]"
-read
-renew
+    echo "...[Enter]"
+    read
+    renew
 }
 ##Função para efeito de loading
 function espere(){
-w=1
-while [ $w -le "40" ] ;do
-echo -n "."
-sleep 0.01
-let w++
-done
-echo
+    w=1
+    while [ $w -le "40" ] ;do
+        echo -n "."
+        sleep 0.01
+        let w++
+    done
+    echo
 }
 ##Função para configurar as interfaces
 function confInt(){
-if [ $UID != 0 ];then
-echo "Não é root,impossivel configurar"
-cont
-renew
-fi
-qtd=$(mii-tool|wc -l) ##qtd=$(($(ifconfig -s|wc -l)-2)) ##ou ifconfig|grep eth
-clear
-echo "Configuração das interfaces...
+    if [ $UID != 0 ];then
+        echo "Não é root,impossivel configurar"
+        cont
+        renew
+    fi
+    qtd=$(mii-tool|wc -l) ##qtd=$(($(ifconfig -s|wc -l)-2)) ##ou ifconfig|grep eth
+    clear
+    echo "Configuração das interfaces...
 
 Selecione a interface para prosseguir,caso ela não esteja na lista,escolha 'Especificar manualmente'"
-eth="eth"
-spc=" "
-for((num=1;$num<=qtd;num=$[num+1]));do
-nu=$[$num-1]
-inter=${inter}${eth}${nu}${spc}
-done
-select int in $inter "Especificar Manualmente" Cancelar;do
-case $int in
-"Especificar Manualmente")echo "Configuração das interfaces..."
-echo -n "Digite o nome da interface:"
-read int
-;;
-Cancelar) unset inter
-renew
-;;
-esac
-echo -n "Informe o IP:"
-read ip
-echo -n "Informe a Máscara:"
-read nmask
-echo "Configurando"
-espere
-ifconfig ${int} ${ip} netmask ${nmask} up
-if [ $? -eq "1" ];then
-echo "Erro,falha na sintaxe?"
-else
-echo Pronto
-echo "Sua configuração atual da interface ${int} é:"
-ifconfig ${int}
-fi
-done
+    eth="eth"
+    spc=" "
+    for((num=1;$num<=qtd;num=$[num+1]));do
+        nu=$[$num-1]
+        inter=${inter}${eth}${nu}${spc}
+    done
+    select int in $inter "Especificar Manualmente" Cancelar;do
+        case $int in
+            "Especificar Manualmente")echo "Configuração das interfaces..."
+                                      echo -n "Digite o nome da interface:"
+                                      read int
+                                      ;;
+            Cancelar) unset inter
+                      renew
+                      ;;
+        esac
+        echo -n "Informe o IP:"
+        read ip
+        echo -n "Informe a Máscara:"
+        read nmask
+        echo "Configurando"
+        espere
+        ifconfig ${int} ${ip} netmask ${nmask} up
+        if [ $? -eq "1" ];then
+            echo "Erro,falha na sintaxe?"
+        else
+            echo Pronto
+            echo "Sua configuração atual da interface ${int} é:"
+            ifconfig ${int}
+        fi
+    done
 }
 ##Configurar rota estática
 function confRoute(){
-clear
-echo "Configuração de Rotas...
+    clear
+    echo "Configuração de Rotas...
 "
-select opt in "Configurar Rota estática" "Configurar Gateway" Cancelar;do
-case $opt in
-"Configurar Rota estática")echo -n "Especifique o ID da rede de destino e o prefixo(ex:192.168.0.0/24):"
-read idR
-;;
-"Configurar Gateway")idR=default
-;;
-Cancelar) renew
-;;
-*) echo -n "Opção inválida [Enter]"
-read
-confRoute
-;;
-esac
-echo -n "Informe o IP do nexthop/gateway:"
-read gw
-echo -n "Informe a métrica:"
-read met
-echo -n "Adicionando"
-espere
-route add -net ${idR} gw ${gw} metric ${met}
-cont
-renew
-done
+    select opt in "Configurar Rota estática" "Configurar Gateway" Cancelar;do
+        case $opt in
+            "Configurar Rota estática")echo -n "Especifique o ID da rede de destino e o prefixo(ex:192.168.0.0/24):"
+                                       read idR
+                                       ;;
+            "Configurar Gateway")idR=default
+                                 ;;
+            Cancelar) renew
+                      ;;
+            *) echo -n "Opção inválida [Enter]"
+               read
+               confRoute
+               ;;
+        esac
+        echo -n "Informe o IP do nexthop/gateway:"
+        read gw
+        echo -n "Informe a métrica:"
+        read met
+        echo -n "Adicionando"
+        espere
+        route add -net ${idR} gw ${gw} metric ${met}
+        cont
+        renew
+    done
 }
 function ajuda(){
-echo "
+    echo "
 SYZI NETTOOLS - V.0.01		Autor:Carlos A.
 
 SYZI é um programa que une diversas ferramentas de rede para ambientes linux,
 entre elas é possível visualizar status da rede e das interfaces bem como configurar interfaces a nível de execução.
 "
-read
+    read
 }
 ##Função para gerar logo
 function renew(){
-clear
-echo "
+    clear
+    echo "
       .
   J++J+J+J+J  +J+       JJ+ +J+J+J+J+J+J   +J			|N
  J+J      ++J  J++      +J          +J+:   J+			|E
@@ -118,51 +118,51 @@ echo "
  . . . . . . . . .+J+ . . . . . . . . . . . .
                J+J++
 "
-Princ
+    Princ
 }
 ##Parte Principal
 function Princ(){
-select opc in "Status da interface" "Configurar interfaces" "Status de portas,conexões e serviços" "Tabela de Rotas" "Configurar Rota estática/Gateway"  "Zerar configurações da placa de rede" "Reiniciar interfaces" "Ajuda" Sair;do
-case $opc in
-"Status da interface") mii-tool
-if [ $? -eq "1" ];then
-echo "Sem permissão,não é root?"
-fi
-cont
-;;
-"Configurar interfaces") confInt
-cont
-renew
-;;
-"Status de portas,conexões e serviços") netstat -ntpl
-cont
-;;
-"Tabela de Rotas") echo -n "Carregando tabela de rotas"
-espere
-route
-read
-renew
-;;
-"Configurar Rota estática/Gateway")confRoute
-;;
-"Zerar configurações da placa de rede") echo > /etc/udev/rules.d/70-persistent-net.rules
-echo "É necessário reiniciar o sistema para que as alterações surtam efeito!"
-cont
-;;
-"Reiniciar interfaces") echo -n "Reiniciando a(s) interface(s)"
-espere
-/etc/init.d/networking restart
-cont
-;;
-"Ajuda") clear
-ajuda
-renew
-;;
-Sair) exit $1
-;;
-*) renew
-;;
-esac
-done
+    select opc in "Status da interface" "Configurar interfaces" "Status de portas,conexões e serviços" "Tabela de Rotas" "Configurar Rota estática/Gateway"  "Zerar configurações da placa de rede" "Reiniciar interfaces" "Ajuda" Sair;do
+        case $opc in
+            "Status da interface") mii-tool
+                                   if [ $? -eq "1" ];then
+                                       echo "Sem permissão,não é root?"
+                                   fi
+                                   cont
+                                   ;;
+            "Configurar interfaces") confInt
+                                     cont
+                                     renew
+                                     ;;
+            "Status de portas,conexões e serviços") netstat -ntpl
+                                                    cont
+                                                    ;;
+            "Tabela de Rotas") echo -n "Carregando tabela de rotas"
+                               espere
+                               route
+                               read
+                               renew
+                               ;;
+            "Configurar Rota estática/Gateway")confRoute
+                                               ;;
+            "Zerar configurações da placa de rede") echo > /etc/udev/rules.d/70-persistent-net.rules
+                                                    echo "É necessário reiniciar o sistema para que as alterações surtam efeito!"
+                                                    cont
+                                                    ;;
+            "Reiniciar interfaces") echo -n "Reiniciando a(s) interface(s)"
+                                    espere
+                                    /etc/init.d/networking restart
+                                    cont
+                                    ;;
+            "Ajuda") clear
+                     ajuda
+                     renew
+                     ;;
+            Sair) exit $1
+                  ;;
+            *) renew
+               ;;
+        esac
+    done
 }
 renew
